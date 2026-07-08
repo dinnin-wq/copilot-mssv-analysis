@@ -1,0 +1,84 @@
+# MSSV EEG Analysis Configuration
+
+# Dataset Configuration
+dataset:
+  root_path: "/data/OpenNeuroDatasets/ds006366"
+  sampling_frequency: 128  # Hz
+  n_expected_subjects: 92
+
+# Analysis Parameters
+analysis:
+  entropy:
+    n_bins: 50
+    method: "shannon"  # shannon, renyi, tsallis
+  
+  connectivity:
+    method: "coherence"  # coherence, plv, wpli
+    frequency_range: [0.5, 50]  # Hz
+  
+  spectral_bands:
+    delta: [0.5, 4]
+    theta: [4, 8]
+    alpha: [8, 12]
+    beta: [12, 30]
+    gamma: [30, 50]
+  
+  sleep_classification:
+    thresholds:
+      wake_rem:
+        re_g_min: 2.0
+        entropy_min: 2.5
+      light_sleep:
+        re_g_min: 1.0
+        re_g_max: 2.0
+      deep_sleep:
+        re_g_max: 1.0
+        entropy_max: 2.0
+
+# Output Configuration
+output:
+  formats:
+    - json
+    - csv
+    - copilot_grounding
+  
+  paths:
+    results: "./results/"
+    logs: "./logs/"
+    cache: "./cache/"
+  
+  filename_pattern: "mssv_analysis_{timestamp}"
+
+# M365 Copilot Configuration
+copilot:
+  enabled: false
+  
+  # Azure AD Configuration
+  azure_ad:
+    tenant_id: "${AZURE_TENANT_ID}"  # Set via environment variable
+    client_id: "${AZURE_CLIENT_ID}"
+    client_secret: "${AZURE_CLIENT_SECRET}"
+  
+  # Grounding Configuration
+  grounding:
+    include_spectral: true
+    include_channel_details: false
+    max_subjects_detail: 10
+  
+  # Upload Configuration
+  upload:
+    enabled: false
+    endpoint: "https://graph.microsoft.com/v1.0/me/copilot/groundingData"
+    batch_size: 50
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(levelname)s - %(message)s"
+  file: "mssv_analysis.log"
+
+# Performance Configuration
+performance:
+  n_workers: 4  # Parallel processing workers
+  cache_results: true
+  skip_processed: true
